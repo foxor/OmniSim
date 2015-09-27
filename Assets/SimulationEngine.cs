@@ -15,6 +15,8 @@ namespace Assets
 
         private static DummyObject[] lockTargets = new DummyObject[LOCK_COUNT];
 
+        public static byte[] Data = new byte[4908533760];
+
         public void Awake()
         {
             for (int i = 0; i < LOCK_COUNT; i++)
@@ -31,8 +33,9 @@ namespace Assets
                 for (var i = 0; i < 10; i++)
                 {
                     System.Threading.Thread.Sleep(100);
-                    Debug.Log("Still waiting");
+                    Data[50] = 44;
                 }
+                Debug.Log("" + Data[4908533710]);
             }
         }
 
@@ -40,7 +43,8 @@ namespace Assets
         {
             lock (lockTargets[0])
             {
-                Debug.Log("Fired");
+                Data[4908533710] = 45;
+                Debug.Log("" + Data[50]);
             }
         }
 
