@@ -15,7 +15,7 @@ namespace Assets
 
         private static DummyObject[] lockTargets = new DummyObject[LOCK_COUNT];
 
-        public static byte[] Data = new byte[4908533760];
+        public static byte[] Data = new byte[72];
 
         public void Awake()
         {
@@ -27,7 +27,6 @@ namespace Assets
 
         public void LockForSeconds()
         {
-            int time = System.DateTime.Now.Minute;
             lock (lockTargets[0])
             {
                 for (var i = 0; i < 10; i++)
@@ -35,7 +34,7 @@ namespace Assets
                     System.Threading.Thread.Sleep(100);
                     Data[50] = 44;
                 }
-                Debug.Log("" + Data[4908533710]);
+                Debug.Log("" + Data[4]);
             }
         }
 
@@ -43,7 +42,7 @@ namespace Assets
         {
             lock (lockTargets[0])
             {
-                Data[4908533710] = 45;
+                Data[4] = 45;
                 Debug.Log("" + Data[50]);
             }
         }
@@ -54,6 +53,7 @@ namespace Assets
             lock1.Start();
             Thread lock2 = new Thread(WaitForLock);
             lock2.Start();
+            DFSLayoutMath.verify();
         }
     }
 }
