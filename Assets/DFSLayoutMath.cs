@@ -9,7 +9,9 @@ namespace Assets
     class DFSLayoutMath
     {
         public const int BRANCHING_FACTOR = 8;
+        public const int LAST_NUMBER = BRANCHING_FACTOR - 1;
         public const int DEPTH = 2;
+        public const int LAST_INDEX_DEPTH_TEST = DEPTH - 1;
 
         protected static int[] STRIDES = new int[DEPTH];
 
@@ -40,6 +42,37 @@ namespace Assets
             }
         }
 
+        public static void nextPath(List<int> path)
+        {
+            int lastIndex = path.Count - 1;
+            if (lastIndex == LAST_INDEX_DEPTH_TEST)
+            {
+                if (path[lastIndex] != LAST_NUMBER)
+                {
+                    path[lastIndex] += 1; // optimized execution path
+                }
+                else
+                {
+                    for (; lastIndex >= 0 && path[lastIndex] == LAST_NUMBER; lastIndex--) ;
+                    if (lastIndex >= 0)
+                    {
+                        int removing = lastIndex + 1;
+                        path.RemoveRange(removing, path.Count - removing);
+                        path[lastIndex] += 1;
+                    }
+                    else
+                    {
+                        path.Clear();
+                        path.Add(0);
+                    }
+                }
+            }
+            else
+            {
+                path.Add(0);
+            }
+        }
+
         public static int index(List<int> path)
         {
             int index = path.Count - 1;
@@ -63,7 +96,8 @@ namespace Assets
                 }
                 index -= 1;
             }
-            throw new Exception("Couldn't figure out the path for index: " + index);
+            //throw new Exception("Couldn't figure out the path for index: " + index);
+            return null;
         }
 
         public static int count()
@@ -79,6 +113,7 @@ namespace Assets
         public static void verify()
         {
             int stepIndex = 0;
+            List<int> iterativePath = new List<int>() { 0 };
             foreach (List<int> stepPath in build(DEPTH))
             {
                 if (index(stepPath) != stepIndex)
@@ -87,9 +122,18 @@ namespace Assets
                 }
                 if (index(path(stepIndex)) != stepIndex)
                 {
-                    Debug.Log("Failed to  path index: " + stepIndex + ".  Actual path: " + print(stepPath) + ", Predicted: " + print(path(stepIndex)));
+                    Debug.Log("Failed to path index: " + stepIndex + ".  Actual path: " + print(stepPath) + ", Predicted: " + print(path(stepIndex)));
+                }
+                if (index(iterativePath) != stepIndex)
+                {
+                    Debug.Log("Failed to generate next path.  Actual path: " + print(stepPath) + ", Generated path: " + print(iterativePath));
                 }
                 stepIndex++;
+                nextPath(iterativePath);
+            }
+            if (index(iterativePath) != 0)
+            {
+                Debug.Log("Failed to loop around to first path");
             }
             Debug.Log("Estimated length: " + count() + " Actual length: " + stepIndex);
         }

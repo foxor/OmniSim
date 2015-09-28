@@ -11,11 +11,30 @@ namespace Assets
     {
         protected const int LOCK_COUNT = 100;
 
-        protected class DummyObject { }
+        public const int BLOB_SIZE = 256;
+        public const int PRIMARY_EXECUTION_OFFSET = 0;
+        public const int OUTGOING_MESSAGE_OFFSET = 64;
+        public const int LAYER_TIME_INDEX_OFFSET = 64;
+        public const int COLOR_OFFSET = 65;
+        public const int MESSAGE_EXECUTION_OFFSET = 128;
+        public const int INCOMING_MESSAGE_OFFSET = 192;
+        public const int MESSAGE_SIZE = 64;
+        public const int EXECUTION_BLOCK_SIZE = 64;
+        public const int INSTRUCTION_SIZE = 2;
+
+        public class DummyObject { }
 
         private static DummyObject[] lockTargets = new DummyObject[LOCK_COUNT];
 
-        public static byte[] Data = new byte[72];
+        public static byte[] Data = new byte[DFSLayoutMath.count() * BLOB_SIZE];
+
+        public static DummyObject lockTarget (int voxelIndex)
+        {
+            voxelIndex = ((voxelIndex >> 16) ^ voxelIndex) * 0x45d9f3b;
+            voxelIndex = ((voxelIndex >> 16) ^ voxelIndex) * 0x45d9f3b;
+            voxelIndex = ((voxelIndex >> 16) ^ voxelIndex);
+            return lockTargets[voxelIndex % LOCK_COUNT];
+        }
 
         public void Awake()
         {
@@ -25,35 +44,9 @@ namespace Assets
             }
         }
 
-        public void LockForSeconds()
-        {
-            lock (lockTargets[0])
-            {
-                for (var i = 0; i < 10; i++)
-                {
-                    System.Threading.Thread.Sleep(100);
-                    Data[50] = 44;
-                }
-                Debug.Log("" + Data[4]);
-            }
-        }
-
-        public void WaitForLock()
-        {
-            lock (lockTargets[0])
-            {
-                Data[4] = 45;
-                Debug.Log("" + Data[50]);
-            }
-        }
-
         public void Start()
         {
-            Thread lock1 = new Thread(LockForSeconds);
-            lock1.Start();
-            Thread lock2 = new Thread(WaitForLock);
-            lock2.Start();
-            DFSLayoutMath.verify();
+            //DFSLayoutMath.verify();
         }
     }
 }
