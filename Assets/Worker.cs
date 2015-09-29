@@ -18,22 +18,22 @@ namespace Assets
         public int minIndex;
         public int maxIndex;
 
-        protected Stack<byte> registerStack;
-
         protected Queue<MessageIntention> messageQueue = new Queue<MessageIntention>();
 
         protected byte[] messageSwapBuffer = new byte[SimulationEngine.MESSAGE_SIZE];
 
-        protected byte activeRegister
+        protected VirtualMachine vm;
+
+        public Worker(int minIndex, int maxIndex)
         {
-            get
-            {
-                return registerStack.Peek();
-            }
+            vm = new VirtualMachine(PushMessage);
+            this.minIndex = minIndex;
+            this.maxIndex = maxIndex;
         }
 
-        protected void Execute(int baseOffset, byte instructionPointer)
+        protected void Execute(int voxelOffset, byte instructionPointer)
         {
+            vm.Process(voxelOffset, instructionPointer);
         }
 
         protected void ExecutePrimary(int voxelIndex)
@@ -69,6 +69,11 @@ namespace Assets
                 
                 Execute(message.destination * SimulationEngine.BLOB_SIZE, SimulationEngine.PRIMARY_EXECUTION_OFFSET);
             }
+        }
+
+        protected void PushMessage(MessageIntention message)
+        {
+            messageQueue.Enqueue(message);
         }
 
         public void Run()
